@@ -1,0 +1,12 @@
+{
+  "name": "needlehack",
+  "version": "1.0.0",
+  "scripts": {
+    "build:css": "npx tailwindcss -i ./assets/css/tailwind.css -o ./assets/css/main.css --minify",
+    "watch:css": "npx tailwindcss -i ./assets/css/tailwind.css -o ./assets/css/main.css --watch",
+    "serve": "bundle exec jekyll serve"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.0"
+  }
+}

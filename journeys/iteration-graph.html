@@ -1,0 +1,117 @@
+---
+layout: default
+title: "Creating our first iteration"
+---
+
+<section class="max-w-6xl mx-auto py-24 px-6">
+  <h1 class="text-4xl font-bold mb-8">Creating our first iteration</h1>
+
+  <!-- Filtros por labels -->
+  <div class="mb-6 flex gap-4 flex-wrap">
+    <button data-label="Product" class="btn-filter bg-blue-600 text-white px-4 py-2 rounded-lg shadow hover:bg-blue-700 transition">Product</button>
+    <button data-label="Tech" class="btn-filter bg-red-600 text-white px-4 py-2 rounded-lg shadow hover:bg-red-700 transition">Tech</button>
+    <button data-label="All" class="btn-filter bg-gray-600 text-white px-4 py-2 rounded-lg shadow hover:bg-gray-700 transition">All</button>
+  </div>
+
+  <!-- Contenedor del grafo -->
+  <div id="graph" class="w-full h-[600px] border rounded-xl shadow-lg bg-gray-50"></div>
+</section>
+
+<!-- vis-network -->
+<link href="https://unpkg.com/vis-network/styles/vis-network.min.css" rel="stylesheet" />
+<script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+
+<script>
+  // Definir nodos con múltiples labels
+  const nodes = new vis.DataSet([
+    {
+      id: 1,
+      label: 'The first MVP',
+      title: 'The first MVP',
+      color: '#3B82F6', // azul
+      font: { color: '#000000' }, // texto negro
+      href: '/journeys/the-first-mvp.html',
+      labels: ['Product']
+    },
+    {
+      id: 2,
+      label: 'Our architecture',
+      title: 'Our architecture',
+      color: '#EF4444', // rojo
+      font: { color: '#000000' }, // texto negro
+      href: '/journeys/our-architecture.html',
+      labels: ['Tech']
+    }
+  ]);
+
+  const edges = new vis.DataSet([
+    { from: 1, to: 2 }
+  ]);
+
+  const container = document.getElementById('graph');
+  const data = { nodes, edges };
+
+  const options = {
+    nodes: {
+      shape: 'dot',
+      size: 25,
+      font: { size: 16, color: '#fff' },
+      borderWidth: 2
+    },
+    edges: {
+      width: 2,
+      color: '#888',
+      smooth: { type: 'continuous' }
+    },
+    physics: {
+      enabled: true,
+      stabilization: false,
+      solver: 'forceAtlas2Based',
+      timestep: 0.5
+    },
+    interaction: {
+      hover: true,
+      dragNodes: true,
+      dragView: true,
+      zoomView: true,
+      tooltipDelay: 100
+    },
+    manipulation: false
+  };
+
+  const network = new vis.Network(container, data, options);
+
+  // Guardar color original para filtros
+  nodes.forEach(node => node.originalColor = node.color);
+
+  // Navegación al click en nodo
+  network.on("click", function(params) {
+    if(params.nodes.length) {
+      const nodeId = params.nodes[0];
+      const node = nodes.get(nodeId);
+      if(node.href) window.location.href = node.href;
+    }
+  });
+
+  // Redibujo al mover nodos para evitar artefactos
+  network.on('dragEnd', () => network.redraw());
+
+  // Filtrado por labels
+  const filterButtons = document.querySelectorAll('.btn-filter');
+  filterButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const label = btn.getAttribute('data-label');
+      if(label === 'All') {
+        nodes.forEach(node => nodes.update({id: node.id, color: node.originalColor}));
+      } else {
+        nodes.forEach(node => {
+          if(node.labels.includes(label)) {
+            nodes.update({id: node.id, color: node.originalColor});
+          } else {
+            nodes.update({id: node.id, color: '#d1d5db'}); // gris claro
+          }
+        });
+      }
+    });
+  });
+</script>
